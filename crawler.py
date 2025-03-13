@@ -38,7 +38,7 @@ async def main():
 
     print(f"Found {len(urls)} URLs to crawl")
 
-    await crawl_parallel(urls=urls, session_id='pydantic_ai_docs')
+    await crawl_parallel(urls=urls, session_id='pydantic_ai_docs', debug_prn = True)
 
 
 if __name__ == "__main__":

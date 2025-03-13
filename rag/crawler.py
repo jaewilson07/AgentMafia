@@ -31,6 +31,7 @@ async def crawl_parallel(
     urls: List[str | None],
     session_id: str,
     max_conccurent_requests: int = 5,
+    debug_prn : bool = False
 ):
   if not urls:
     print("No URLs found to crawl")
@@ -53,8 +54,8 @@ async def crawl_parallel(
         process_url(url=url,
                     crawler=crawler,
                     crawl_config=crawl_config,
-                    session_id=session_id)
-    ],
+                    session_id=session_id, debug_prn = debug_prn)
+     for url in urls],
                                             n=max_conccurent_requests)
 
   except Exception as e:
