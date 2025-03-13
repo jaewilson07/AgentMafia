@@ -2,7 +2,7 @@ from typing import List
 import requests
 from xml.etree import ElementTree
 import asyncio
-from crawler import crawl_parallel
+from rag.crawler import crawl_parallel
 
 import sys
 

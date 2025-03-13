@@ -3,14 +3,15 @@ from dataclasses import dataclass
 from openai import AsyncOpenAI
 
 from rag import chunk_text as ct
+from rag import prompts
+
+from supabase import create_client, Client
 import utils.chunk_execution as ce
 from typing import Union, List, Dict
 from urllib.parse import urlparse
 import datetime as dt
-import prompts
 import os
 import json
-from supabase import create_client, Client
 
 default_async_openai_client: AsyncOpenAI = AsyncOpenAI(
     api_key=os.getenv('OPENAI_API_KEY'))
