@@ -19,5 +19,7 @@
     pkgs.alsa-lib
     pkgs.at-spi2-core
     pkgs.nodejs
+    # Add playwright-specific package
+    pkgs.playwright-driver
   ];
 }
