@@ -1,39 +1,23 @@
-modules = ["python-3.11"]
+run = "python main.py"
+modules = ["python-3.11:v18-20230807-322e88b"]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-23_05"
 
 [deployment]
-deploymentTarget = "autoscale"
-run = ["sh", "-c", "streamlit run app.py --server.port 5000"]
+run = "python main.py"
 
-[workflows]
-runButton = "Project"
+[env]
+PYTHONPATH = "."
 
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
+[packager]
+language = "python3"
+ignoredPackages = ["unit_tests"]
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Streamlit App"
-
-[[workflows.workflow]]
-name = "Streamlit App"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "streamlit run app.py --server.port 5000"
-waitForPort = 5000
+[packager.features]
+guessImports = true
+enabledForHosting = false
 
 [[ports]]
-localPort = 5000
+localPort = 8080
 externalPort = 80
