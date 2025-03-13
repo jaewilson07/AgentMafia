@@ -4,5 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "crawl4ai>=0.5.0.post4",
+    "openai>=1.66.3",
+    "python-dotenv>=1.0.1",
+    "requests>=2.32.3",
+    "storage>=0.0.4.3",
     "streamlit>=1.43.2",
 ]
