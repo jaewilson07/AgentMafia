@@ -31,6 +31,7 @@ def get_pydantic_ai_docs_urls() -> List[str | None]:
 async def main():
     # Get URLs from Pydantic AI docs
     urls = get_pydantic_ai_docs_urls()
+    
     if not urls:
         print("No URLs found to crawl")
         return

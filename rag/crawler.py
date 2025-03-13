@@ -28,10 +28,14 @@ async def process_url(crawler: AsyncWebCrawler, url: str,
 
 
 async def crawl_parallel(
-    urls: List[str],
+    urls: List[str | None],
     session_id: str,
     max_conccurent_requests: int = 5,
 ):
+  if not urls:
+    print("No URLs found to crawl")
+    return
+
   browser_config = BrowserConfig(
       headless=True,
       verbose=False,
