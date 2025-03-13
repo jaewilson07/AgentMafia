@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from openai import AsyncOpenAI
 
-import chunk_text as ct
+from rag import chunk_text as ct
 import utils.chunk_execution as ce
 from typing import Union, List, Dict
 from urllib.parse import urlparse
