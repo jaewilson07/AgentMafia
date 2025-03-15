@@ -1,1 +1,1 @@
-https://ai.pydantic.dev/examples/question-graph/
+https://ai.pydantic.dev/logfire/

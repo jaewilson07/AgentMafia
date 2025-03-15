@@ -15,7 +15,11 @@ async def generate_openai_chat(
     model: str = "gpt-4o-mini-2024-07-18",
     response_format: Union[Dict[str, str], None] = None,
     return_raw: bool = False,
+    debug_prn: bool = False,
 ):
+
+    if debug_prn:
+        print("📚 - querying LLM")
 
     async_client = async_client or default_async_openai_client
 
@@ -39,7 +43,11 @@ async def generate_openai_embbedding(
     async_client: AsyncOpenAI = None,
     model="text-embedding-3-small",
     return_raw: bool = False,
+    debug_prn: bool = False,
 ):
+
+    if debug_prn:
+        print("📚 - starting LLM")
 
     async_client = async_client or default_async_openai_client
 

@@ -42,7 +42,7 @@ https://ai.pydantic.dev/api/pydantic_graph/exceptions/
 https://ai.pydantic.dev/api/pydantic_graph/graph/
 https://ai.pydantic.dev/api/pydantic_graph/mermaid/
 https://ai.pydantic.dev/api/pydantic_graph/nodes/
-https://ai.pydantic.dev/api/pydantic_graph/state/
+https://ai.pydantic.dev/api/pydantic_graph/persistence/
 https://ai.pydantic.dev/examples/
 https://ai.pydantic.dev/examples/bank-support/
 https://ai.pydantic.dev/examples/chat-app/

@@ -10,6 +10,7 @@ from rag import prompts
 
 import utils
 
+
 from frontmatter import Frontmatter
 
 from typing import Union, List
@@ -95,17 +96,24 @@ class ProcessedChunk:
         if not os.path.exists(md_path):
             raise PC_PathNotExist(md_path)
 
-        chunk, frontmatter = utils.read_md_from_disk(md_path)
+        try:
+            chunk, frontmatter = utils.read_md_from_disk(md_path)
 
-        return cls(
-            url=frontmatter.get("url"),
-            source=frontmatter.get("session_id"),
-            chunk_number=frontmatter.get("chunk_number"),
-            title=frontmatter.get("title"),
-            summary=frontmatter.get("summary"),
-            embedding=frontmatter.get("embedding"),
-            content=chunk,
-        )
+            res = cls(
+                url=frontmatter.get("url"),
+                source=frontmatter.get("session_id"),
+                chunk_number=frontmatter.get("chunk_number"),
+                title=frontmatter.get("title"),
+                summary=frontmatter.get("summary"),
+                embedding=frontmatter.get("embedding"),
+                content=chunk,
+            )
+
+            return res
+
+        except Exception as e:
+            utils.generate_error_message(exception=e)
+            return False
 
     def compare_self_to_disk(self, md_path):
         try:
@@ -113,6 +121,9 @@ class ProcessedChunk:
 
         except PC_PathNotExist as e:
             print(e)
+            return self
+
+        if not md_chunk:
             return self
 
         if md_chunk.content == self.content:
@@ -126,14 +137,14 @@ class ProcessedChunk:
 
     async def get_title_and_summary(
         self,
-        is_override: bool = False,
+        is_replace_llm_metadata: bool = False,
         async_client: AsyncOpenAI = None,
         model="gpt-4o-mini-2024-07-18",
         debug_prn: bool = False,
         return_raw: bool = False,
     ) -> dict:
 
-        if not is_override and self.title and self.summary:
+        if not is_replace_llm_metadata and self.title and self.summary:
             if debug_prn:
                 print(f"{self.url} title and summary already exists")
             return self
@@ -154,6 +165,7 @@ class ProcessedChunk:
                 model=model,
                 response_format={"type": "json_object"},
                 return_raw=return_raw,
+                debug_prn=debug_prn,
             )
 
             if return_raw:
@@ -174,16 +186,18 @@ class ProcessedChunk:
 
     async def get_embedding(
         self,
-        is_override: bool = False,
+        is_replace_llm_metadata: bool = False,
         async_client: AsyncOpenAI = None,
         model="text-embedding-3-small",
-        debug_prn: bool = False,
         return_raw: bool = False,
+        debug_prn: bool = False,
     ) -> List[float]:
 
-        if not is_override and self.embedding:
+        if not is_replace_llm_metadata and self.embedding:
+
             if debug_prn:
-                print(f"{self.url} embedding already retrieved")
+                print(f"🛢️  {self.url} embedding already retrieved")
+
             return self
 
         try:
@@ -192,6 +206,7 @@ class ProcessedChunk:
                 async_client=async_client,
                 model=model,
                 return_raw=return_raw,
+                debug_prn=debug_prn,
             )
 
             if return_raw:
@@ -209,7 +224,7 @@ class ProcessedChunk:
 
     async def generate_metadata(
         self,
-        is_override: bool = False,
+        is_replace_llm_metadata: bool = False,
         async_text_client: AsyncOpenAI = None,
         async_embedding_model: AsyncOpenAI = None,
         text_model="gpt-4o-mini-2024-07-18",
@@ -218,13 +233,13 @@ class ProcessedChunk:
         output_path: str = None,
     ):
         await self.get_title_and_summary(
-            is_override=is_override,
+            is_replace_llm_metadata=is_replace_llm_metadata,
             async_client=async_text_client,
             model=text_model,
             debug_prn=debug_prn,
         )
         await self.get_embedding(
-            is_override=is_override,
+            is_replace_llm_metadata=is_replace_llm_metadata,
             async_client=async_embedding_model,
             model=embedding_model,
             debug_prn=debug_prn,

@@ -16,23 +16,30 @@ async def process_chunk(
     supabase_client,
     database_table_name,
     export_folder,
+    is_replace_llm_metadata: bool = False,
     debug_prn: bool = False,
 ):
+    if debug_prn:
+        print(f"🎬 starting {url} - {chunk_number}")
+
+    chunk_path = (
+        f"{export_folder}/chunks/{utils.convert_url_file_name(url)}/{chunk_number}.md"
+    )
+
+    chunk = pc.ProcessedChunk.from_chunk(
+        chunk=chunk,
+        chunk_number=chunk_number,
+        url=url,
+        source=source,
+        output_path=chunk_path,
+    )
+
     try:
-        if debug_prn:
-            print(f"🎬 starting {url} - {chunk_number}")
-
-        chunk_path = f"{export_folder}/chunks/{utils.convert_url_file_name(url)}/{chunk_number}.md"
-
-        chunk = pc.ProcessedChunk.from_chunk(
-            chunk=chunk,
-            chunk_number=chunk_number,
-            url=url,
-            source=source,
+        await chunk.generate_metadata(
             output_path=chunk_path,
+            is_replace_llm_metadata=is_replace_llm_metadata,
+            debug_prn=debug_prn,
         )
-
-        await chunk.generate_metadata(output_path=chunk_path)
 
         data = chunk.to_json()
         data.pop("source")
@@ -81,6 +88,7 @@ async def process_url(
     supabase_client=None,
     debug_prn: bool = False,
     browser_config=None,
+    is_replace_llm_metadata: bool = False,
     max_conccurent_requests=5,
 ):
     """process a document and store chunks in parallel"""
@@ -126,6 +134,7 @@ async def process_url(
                 database_table_name=database_table_name,
                 export_folder=export_folder,
                 debug_prn=debug_prn,
+                is_replace_llm_metadata=is_replace_llm_metadata,
             )
             for idx, chunk in enumerate(chunks)
         ],
@@ -146,6 +155,7 @@ async def process_urls(
     max_conccurent_requests: int = 5,
     debug_prn: bool = False,
     browser_config=None,
+    is_replace_llm_metadata: bool = False,
 ):
     if not urls:
         print("No URLs found to crawl")
@@ -167,6 +177,7 @@ async def process_urls(
                 browser_config=browser_config,
                 export_folder=export_folder,
                 database_table_name=database_table_name,
+                is_replace_llm_metadata=is_replace_llm_metadata,
             )
             for url in urls
         ],
