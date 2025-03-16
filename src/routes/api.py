@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
-from src.routes import crawler_routes
+from src.routes import crawler
 from src.implementations import scrape_urls
 
 app = FastAPI()
@@ -28,7 +28,7 @@ async def crawl_url(
             "result": result,
         }
 
-    except crawler_routes.Crawler_NotSuccess as e:
+    except crawler.Crawler_NotSuccess as e:
         raise HTTPException(
             status_code=500, detail={"error": str(e), "type": "crawler_error"}
         ) from e

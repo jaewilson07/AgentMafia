@@ -119,7 +119,7 @@ async def list_documentation_pages(
         if not result.data:
             return []
 
-        urls = sorted(set(doc["ulr"] for doc in result.data))
+        urls = sorted(set(doc["url"] for doc in result.data))
         return urls
 
     except Exception as e:

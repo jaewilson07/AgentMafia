@@ -4,6 +4,7 @@ supabase
 openai
 
 tavily-python
+slack-bolt
 
 logfire
 pydantic-ai
