@@ -9,4 +9,6 @@ from src.classes.Agent_PydanticAI_Expert import (
     PydanticAIDependencies,
 )
 
+from src.implementations.scrape_urls import process_url, process_urls
+
 from src.implementations.scrape_urls import *

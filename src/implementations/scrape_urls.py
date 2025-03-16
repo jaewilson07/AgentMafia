@@ -3,8 +3,8 @@ from typing import List
 
 import utils
 
-from src.routes import storage
-from src.routes import crawler
+from src.routes import storage as storage_routes
+from src.routes import crawler as crawler_routes
 from src.classes import Crawler_ProcessedChunk as pc
 import utils.RagError
 
@@ -35,33 +35,33 @@ async def process_chunk(
         output_path=chunk_path,
     )
 
-    try:
-        await chunk.generate_metadata(
-            output_path=chunk_path,
-            is_replace_llm_metadata=is_replace_llm_metadata,
-            debug_prn=debug_prn,
-        )
+    # try:
+    await chunk.generate_metadata(
+        output_path=chunk_path,
+        is_replace_llm_metadata=is_replace_llm_metadata,
+        debug_prn=debug_prn,
+    )
 
-        data = chunk.to_json()
-        data.pop("source")
+    data = chunk.to_json()
+    data.pop("source")
 
-        storage.store_data_in_supabase_table(
-            supabase_client=supabase_client,
-            table_name=database_table_name,
-            data=data,
-        )
+    storage_routes.store_data_in_supabase_table(
+        supabase_client=supabase_client,
+        table_name=database_table_name,
+        data=data,
+    )
 
-        if debug_prn:
-            print(f"successfully processed {url}-{chunk_number}")
+    if debug_prn:
+        print(f"successfully processed {url}-{chunk_number}")
 
-        return chunk
+    return chunk
 
-    except Exception as e:
-        print(
-            utils.generate_error_message(
-                f"💀 process_chunk - {url} - {chunk_number} -{e}", exception=e
-            )
-        )
+    # except Exception as e:
+    #     print(
+    #         utils.generate_error_message(
+    #             f"💀 process_chunk - {url} - {chunk_number} -{e}", exception=e
+    #         )
+    #     )
 
 
 async def read_url(url, source, browser_config, doc_path, debug_prn: bool = False):
@@ -73,7 +73,7 @@ async def read_url(url, source, browser_config, doc_path, debug_prn: bool = Fals
 
         return content
 
-    res = await crawler.scrape_url(
+    res = await crawler_routes.scrape_url(
         url=url,
         session_id=source,
         browser_config=browser_config,
@@ -98,8 +98,8 @@ async def process_url(
 ):
     """process a document and store chunks in parallel"""
 
-    browser_config = browser_config or crawler.default_browser_config
-    supabase_client = supabase_client or storage.default_supabase_client
+    browser_config = browser_config or crawler_routes.default_browser_config
+    supabase_client = supabase_client or storage_routes.default_supabase_client
 
     doc_path = f"{export_folder}/{utils.convert_url_file_name(url)}.md"
 

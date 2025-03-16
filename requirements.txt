@@ -1,0 +1,14 @@
+frontmatter
+crawl4ai
+supabase
+openai
+
+tavily-python
+
+logfire
+pydantic-ai
+streamlit
+
+fastapi
+uvicorn
+trafilatura

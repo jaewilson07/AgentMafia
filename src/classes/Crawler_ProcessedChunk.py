@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
 import os
 from openai import AsyncOpenAI
-import src.routes.openai as openai
-import src.routes.storage as storage
+import src.routes.openai as openai_routes
+import src.routes.storage as storage_routes
+import src.prompts.crawler as crawler_prompts
 
 import utils
 
@@ -142,7 +143,7 @@ class Crawler_ProcessedChunk:
                 print(f"🛢️ {self.url} title and summary already exists")
             return self
 
-        system_prompt = crawler.prompt_extract_title_and_summary
+        system_prompt = crawler_prompts.prompt_extract_title_and_summary
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -152,7 +153,7 @@ class Crawler_ProcessedChunk:
             },  # Send first 1000 chars for context
         ]
         try:
-            res = await openai.generate_openai_chat(
+            res = await openai_routes.generate_openai_chat(
                 messages=messages,
                 async_client=async_client,
                 model=model,
@@ -194,7 +195,7 @@ class Crawler_ProcessedChunk:
             return self
 
         try:
-            res = await openai.generate_openai_embbedding(
+            res = await openai_routes.generate_openai_embbedding(
                 text=self.content,
                 async_client=async_client,
                 model=model,
@@ -239,7 +240,7 @@ class Crawler_ProcessedChunk:
         )
 
         if output_path:
-            storage.save_to_disk(output_path=output_path, **self.to_json())
+            storage_routes.save_to_disk(output_path=output_path, **self.to_json())
 
         return self
 

@@ -1,37 +1,39 @@
 from fastapi import FastAPI, HTTPException
-import requests
+
+from src.routes import crawler_routes
+from src.implementations import scrape_urls
 
 app = FastAPI()
 
+
 @app.post("/api/crawl")
-async def crawl_url(url: str):
-    """
-    Simple endpoint to crawl a URL and return its content.
-    """
+async def crawl_url(
+    url: str,
+    session_id: str = "default_session",
+    export_folder: str = "./export",
+    database_table_name: str = "site_pages",
+):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
+        result = await scrape_urls.process_url(
+            url=url,
+            source=session_id,
+            export_folder=export_folder,
+            database_table_name=database_table_name,
+            debug_prn=True,
+        )
 
         return {
             "success": True,
-            "url": url,
-            "content": response.text,
-            "status_code": response.status_code
+            "message": f"Successfully processed {url}",
+            "result": result,
         }
 
-    except requests.RequestException as e:
+    except crawler_routes.Crawler_NotSuccess as e:
         raise HTTPException(
-            status_code=400,
-            detail={
-                "error": str(e),
-                "type": "crawler_error"
-            }
-        )
+            status_code=500, detail={"error": str(e), "type": "crawler_error"}
+        ) from e
+
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail={
-                "error": str(e),
-                "type": "server_error"
-            }
-        )
+            status_code=500, detail={"error": str(e), "type": "server_error"}
+        ) from e

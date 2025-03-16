@@ -1,6 +1,6 @@
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 
-from src.routes import storage
+from src.routes import storage as storage_routes
 
 default_browser_config = BrowserConfig(
     browser_type="chromium",
@@ -27,22 +27,26 @@ async def scrape_url(
     res = None
     content = None
 
-    async with AsyncWebCrawler(config=browser_config) as crawler:
-        crawl_config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
+    try:
+        async with AsyncWebCrawler(config=browser_config) as crawler:
+            crawl_config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
 
-        res = await crawler.arun(
-            url=url,
-            config=crawl_config,
-            session_id=session_id,
-            timeout=15,
-        )
+            res = await crawler.arun(
+                url=url,
+                config=crawl_config,
+                session_id=session_id,
+                timeout=15,
+            )
+
+    except NotImplementedError as e:
+        print("""have you run create4ai-create and create4ai-doctor? in terminal""")
 
     if not res.success:
         raise Crawler_NotSuccess(url=url, message=res.error_message)
 
     if output_path:
         content = res.markdown
-        storage.save_to_disk(
+        storage_routes.save_to_disk(
             url=url, output_path=output_path, source=session_id, content=content
         )
 
