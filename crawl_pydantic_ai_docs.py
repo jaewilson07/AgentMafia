@@ -2,7 +2,7 @@ from typing import List
 import requests
 from xml.etree import ElementTree
 import asyncio
-import rag
+import src
 
 import sys
 
@@ -34,7 +34,7 @@ async def main():
 
     print(f"Found {len(urls)} URLs to crawl")
 
-    await rag.process_urls(
+    await src.process_urls(
         urls=urls,
         source="pydantic_ai_docs",
         export_folder="./export",

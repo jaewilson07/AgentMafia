@@ -3,9 +3,10 @@ from typing import List
 
 import utils
 
-from rag.routes import storage
-from rag.routes import crawler
-from rag.classes import ProcessedChunk as pc
+from src.routes import storage
+from src.routes import crawler
+from src.classes import Crawler_ProcessedChunk as pc
+import utils.RagError
 
 
 async def process_chunk(
@@ -26,7 +27,7 @@ async def process_chunk(
         f"{export_folder}/chunks/{utils.convert_url_file_name(url)}/{chunk_number}.md"
     )
 
-    chunk = pc.ProcessedChunk.from_chunk(
+    chunk = pc.Crawler_ProcessedChunk.from_chunk(
         chunk=chunk,
         chunk_number=chunk_number,
         url=url,
@@ -56,7 +57,11 @@ async def process_chunk(
         return chunk
 
     except Exception as e:
-        print(f"💀 process_chunk - {url} - {chunk_number} -{e}")
+        print(
+            utils.generate_error_message(
+                f"💀 process_chunk - {url} - {chunk_number} -{e}", exception=e
+            )
+        )
 
 
 async def read_url(url, source, browser_config, doc_path, debug_prn: bool = False):

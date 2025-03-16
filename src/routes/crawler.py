@@ -1,7 +1,6 @@
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 
-from rag.routes import storage
-import utils
+from src.routes import storage
 
 default_browser_config = BrowserConfig(
     browser_type="chromium",

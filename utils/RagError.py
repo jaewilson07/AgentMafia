@@ -14,8 +14,10 @@ def generate_error_message(message=None, exception=None):
     if not message.startswith("💀"):
         message = "💀  " + message
 
+    return message
 
-class RagException(Exception):
+
+class RagError(Exception):
     def __init__(self, message=None, exception=None):
 
         super().__init__(generate_error_message(message=message, exception=exception))

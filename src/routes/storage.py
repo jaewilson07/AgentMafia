@@ -3,7 +3,6 @@ import os
 import utils
 import json
 import datetime as dt
-from frontmatter import Frontmatter
 
 default_supabase_client: Client = create_client(
     os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY")

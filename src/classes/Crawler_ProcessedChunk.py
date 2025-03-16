@@ -1,17 +1,10 @@
 from dataclasses import dataclass, field
 import os
 from openai import AsyncOpenAI
-from supabase import Client as SupabaseClient
-import rag.routes.openai as openai
-import rag.routes.storage as storage
-
-from utils.chunking import chunk_text
-from rag import prompts
+import src.routes.openai as openai
+import src.routes.storage as storage
 
 import utils
-
-
-from frontmatter import Frontmatter
 
 from typing import Union, List
 from urllib.parse import urlparse
@@ -19,7 +12,7 @@ import datetime as dt
 
 
 @dataclass
-class ProcessedChunk_Metadata:
+class Crawler_ProcessedChunk_Metadata:
     source: str
     crawled_at: str
     url_path: str
@@ -49,7 +42,7 @@ class PC_PathNotExist(Exception):
 
 
 @dataclass
-class ProcessedChunk:
+class Crawler_ProcessedChunk:
     source: str
     url: str
     chunk_number: int
@@ -57,7 +50,7 @@ class ProcessedChunk:
     title: str = None
     summary: str = None
     embedding: List[float] = None
-    metadata: Union[ProcessedChunk_Metadata, None] = None
+    metadata: Union[Crawler_ProcessedChunk_Metadata, None] = None
     async_client: Union[AsyncOpenAI, None] = field(repr=False, default=None)
     error_logs: List[str] = field(default_factory=list)
 
@@ -68,7 +61,7 @@ class ProcessedChunk:
         return self.url == other.url and self.chunk_number == other.chunk_number
 
     def __post_init__(self):
-        self.metadata = ProcessedChunk_Metadata.from_url(
+        self.metadata = Crawler_ProcessedChunk_Metadata.from_url(
             url=self.url,
             source=self.source,
             chunk=self.content,
@@ -146,10 +139,10 @@ class ProcessedChunk:
 
         if not is_replace_llm_metadata and self.title and self.summary:
             if debug_prn:
-                print(f"{self.url} title and summary already exists")
+                print(f"🛢️ {self.url} title and summary already exists")
             return self
 
-        system_prompt = prompts.prompt_extract_title_and_summary
+        system_prompt = crawler.prompt_extract_title_and_summary
 
         messages = [
             {"role": "system", "content": system_prompt},
