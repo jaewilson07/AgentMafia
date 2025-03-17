@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "StreamlineSupabase"
+  site-url: "https://jaewilson07.github.io/StreamlineSupabase"
+  description: "agentic mafia for modifying"
+  repo-branch: main
+  repo-url: "https://github.com/jaewilson07/StreamlineSupabase"
