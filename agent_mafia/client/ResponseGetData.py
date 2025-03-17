@@ -32,13 +32,16 @@ class ResponseGetDataSlack(ResponseGetData):
     status : int
     response : Any
 
+    channel_id : str = None
+    message_id : float = None
     app : AsyncSlackApp = field(repr = False , default = None)
 
     @classmethod
-    def from_res(cls, res : AsyncSlackResponse, async_app :AsyncSlackApp):
+    def from_res(cls, res : AsyncSlackResponse, async_app :AsyncSlackApp, **kwargs):
         return ResponseGetDataSlack(
             is_success=res["ok"],
             response=res.data,
-            status = res['status'],
-            app = async_app
+            status = res.status_code,
+            app = async_app,
+            **kwargs
         )
