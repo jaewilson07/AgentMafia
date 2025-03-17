@@ -4,6 +4,10 @@ project:
 website:
   title: "StreamlineSupabase"
   site-url: "https://jaewilson07.github.io/StreamlineSupabase"
+<<<<<<< HEAD
   description: ""
+=======
+  description: "agentic mafia for modifying"
+>>>>>>> test
   repo-branch: main
   repo-url: "https://github.com/jaewilson07/StreamlineSupabase"

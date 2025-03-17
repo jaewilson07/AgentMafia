@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # StreamlineSupabase
 
 
@@ -65,3 +66,6 @@ Fill me in please! Don’t forget code examples:
 ```
 
     2
+=======
+This file will be overwritten by `index.ipynb`
+>>>>>>> test
