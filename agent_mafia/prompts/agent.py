@@ -5,10 +5,6 @@
 # %% auto 0
 __all__ = ['pydantic_agent_system_prompt']
 
-# %% ../../nbs/prompts/agentic.ipynb 2
-#| export
-
-
 # %% ../../nbs/prompts/agentic.ipynb 3
 pydantic_agent_system_prompt = """
 You are an expert at Pydantic AI - a Python AI agent framework that you have access to all the documentation to,

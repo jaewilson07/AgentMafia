@@ -4,7 +4,8 @@ session_id: test
 chunk_number: 0
 title: Domo IT Whitepaper
 summary: a whitepaper a about IT
-updated_dt: 2025-03-17T23:32:00.491453
+metadata : {}
+updated_dt: 2025-03-18T13:09:37.037751
 ---
 # Executive Summary
 

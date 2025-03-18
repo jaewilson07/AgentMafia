@@ -5,10 +5,6 @@
 # %% auto 0
 __all__ = ['prompt_extract_title_and_summary']
 
-# %% ../../nbs/prompts/crawler.ipynb 2
-#| export
-
-
 # %% ../../nbs/prompts/crawler.ipynb 3
 prompt_extract_title_and_summary = """
 You are an AI that extracts titles and summaries from documentation chunks.

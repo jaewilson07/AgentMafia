@@ -6,10 +6,7 @@
 __all__ = ['tavily_client', 'process_response', 'tavily_search']
 
 # %% ../../nbs/routes/search.ipynb 2
-from tavily import TavilyClient, AsyncTavilyClient
-
-
-# Setup the Tavily Client
+from tavily import AsyncTavilyClient
 
 # %% ../../nbs/routes/search.ipynb 3
 tavily_client = AsyncTavilyClient(api_key=os.environ["TAVILY_API_KEY"])

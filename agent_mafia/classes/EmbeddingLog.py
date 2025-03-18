@@ -6,21 +6,22 @@
 __all__ = ['EmbeddingLog_Error', 'EmbeddingLog']
 
 # %% ../../nbs/classes/EmbeddingLog.ipynb 2
-import utils
 import datetime as dt
 from dataclasses import dataclass, field
 import json
 import os
 from typing import List, Dict
 
+
+import agent_mafia.utils as utils
 from agent_mafia.client.MafiaError import MafiaError
 
-# %% ../../nbs/classes/EmbeddingLog.ipynb 3
-class EmbeddingLog_Error(RagError):
-    def __init__(self, message):
-        super().__init__(message=message)
-
 # %% ../../nbs/classes/EmbeddingLog.ipynb 4
+class EmbeddingLog_Error(MafiaError):
+    def __init__(self, message, exception  = None):
+        super().__init__(message=message, exception=exception)
+
+# %% ../../nbs/classes/EmbeddingLog.ipynb 5
 @dataclass
 class EmbeddingLog:
     log_path: str
