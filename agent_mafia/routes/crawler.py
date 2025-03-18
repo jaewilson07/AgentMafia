@@ -8,7 +8,7 @@ __all__ = ['default_browser_config', 'Crawler_Route_NotSuccess', 'scrape_url']
 # %% ../../nbs/routes/crawler.ipynb 2
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 
-
+from ..client.ResponseGetData import ResponseGetDataCrawler
 
 # %% ../../nbs/routes/crawler.ipynb 3
 from typing import Callable
@@ -51,11 +51,14 @@ async def scrape_url(
                 timeout=15,
             )
 
+
     except NotImplementedError as e:
         raise Crawler_Route_NotSuccess(message = "have you run create4ai-create and create4ai-doctor? in terminal", exception = e)
 
     if not res.success:
         raise Crawler_Route_NotSuccess(message = f"error crawling {url} - {res.error_message}")
+    
+    rgd = ResponseGetDataCrawler.from_res(res)
 
     if storage_fn:
         storage_fn(
@@ -64,4 +67,4 @@ async def scrape_url(
                 'source' : session_id,
                 'url' : url,})
 
-    return res
+    return rgd

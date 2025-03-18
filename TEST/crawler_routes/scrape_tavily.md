@@ -1,7 +1,7 @@
 ---
 url: https://docs.tavily.com/sdk/python/quick-start
 session_id: tavily_docs
-updated_dt: 2025-03-18T13:16:04.307784
+updated_dt: 2025-03-18T13:38:34.289843
 ---
 [Tavily Docs home page![light logo](https://mintlify.s3.us-west-1.amazonaws.com/tavilyai/logo/light.svg)![dark logo](https://mintlify.s3.us-west-1.amazonaws.com/tavilyai/logo/dark.svg)](https://tavily.com/)
 Search or ask...

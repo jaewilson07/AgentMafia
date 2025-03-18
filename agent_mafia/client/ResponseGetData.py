@@ -5,6 +5,7 @@ __all__ = ['ResponseGetData', 'ResponseGetDataOpenAi', 'ResponseGetDataCrawler',
            'ResponseGetDataSupabase']
 
 # %% ../../nbs/client/ResponseGetData.ipynb 1
+from abc import ABC , abstractmethod
 from typing import Any, List
 from dataclasses import dataclass, field
 from abc import abstractmethod
@@ -14,13 +15,13 @@ from slack_sdk.web.async_client import AsyncSlackResponse
 
 # %% ../../nbs/client/ResponseGetData.ipynb 3
 @dataclass
-class ResponseGetData:
+class ResponseGetData(ABC):
     is_success: bool
     status : int
     response : Any
 
-    @abstractmethod
-    def from_res():
+    @classmethod
+    def from_res(abstractmethod):
         pass
 
 
@@ -28,7 +29,6 @@ class ResponseGetData:
 
 # %% ../../nbs/client/ResponseGetData.ipynb 4
 @dataclass
-
 class ResponseGetDataOpenAi(ResponseGetData):
     is_success: bool
     status : int
@@ -45,28 +45,28 @@ class ResponseGetDataOpenAi(ResponseGetData):
         )
 
 # %% ../../nbs/client/ResponseGetData.ipynb 5
+@dataclass
 class ResponseGetDataCrawler(ResponseGetData):
     is_success: bool
-    status : int
-    response : Any
+    status: int
+    response: Any
     url: str
-    htlml : str = field(default = None, repr = False)
-    markdown : str = field(default = None, repr = False)
-    links : List[dict] = field(default_factory=list, repr = False)
-
-    raw : Any = field(default = None, repr = False)
+    html: Any = field(default=None, repr=False)
+    links: List[dict] = field(default_factory=list, repr=False)
+    markdown: Any = field(default=None, repr=False)
+    raw: Any = field(default=None, repr=False)
 
     @classmethod
     def from_res(cls, res):
         return cls(
-            is_success = res[0].success,
-            status = res[0].status_code,
-            url = res[0].url,
-            html = res[0].html,
-            links = res[0].links,
-            markdown = res[0].markdown,
-            response = res[0],
-            raw = res
+            is_success=res[0].success,
+            status=res[0].status_code,
+            response=res[0],
+            url=res[0].url,
+            html=res[0].html,
+            links=res[0].links,
+            markdown=res[0].markdown,
+            raw=res,
         )
 
 # %% ../../nbs/client/ResponseGetData.ipynb 6
