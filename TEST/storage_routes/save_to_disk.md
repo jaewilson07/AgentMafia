@@ -5,7 +5,7 @@ chunk_number: 0
 title: Domo IT Whitepaper
 summary: a whitepaper a about IT
 metadata : {}
-updated_dt: 2025-03-18T13:09:37.037751
+updated_dt: 2025-03-19T19:37:27.505388
 ---
 # Executive Summary
 
