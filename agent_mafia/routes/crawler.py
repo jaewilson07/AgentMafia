@@ -47,7 +47,7 @@ async def scrape_url(
     try:
         async with AsyncWebCrawler(config=browser_config) as crawler:
             crawler_config = crawler_config or CrawlerRunConfig(
-                cache_mode=CacheMode.ENABLED,
+                cache_mode=CacheMode.BYPASS,
                 
             )
 
@@ -81,7 +81,7 @@ async def scrape_url(
     if storage_fn:
         storage_fn(
             data={
-                "content": res.markdown,
+                "content": rgd.markdown or rgd.response,
                 "source": session_id,
                 "url": res.url,
             }
@@ -89,14 +89,16 @@ async def scrape_url(
 
     return rgd
 
-# %% ../../nbs/routes/crawler.ipynb 9
+# %% ../../nbs/routes/crawler.ipynb 10
 async def crawl_urls(
     starting_url: str,
     session_id: str,
-    output_path: str,
+    output_folder: str,
     crawler_config: CrawlerRunConfig = None,
     browser_config: BrowserConfig = None,
     storage_fn: Callable = None,
+    process_fn: Callable = None,
+    delay_before_return_html: int = 3,
 ):
     browser_config = browser_config or default_browser_config
     try:
@@ -106,21 +108,35 @@ async def crawl_urls(
             async for res in await crawler.arun(
                 starting_url,
                 config=crawler_config,
-                timeout=15,
+                # timeout=15,
+                magic = True,
+                delay_before_return_html=delay_before_return_html,
                 session_id=session_id,
             ):
+                
                 rgd = ResponseGetDataCrawler.from_res(res)
+
+                output_path=f"{os.path.join(
+                    output_folder, amcv.convert_url_file_name(rgd.url))}.md"
+                
+                print(output_path)
 
                 if storage_fn:
                     storage_fn(
-                        output_path=f"{os.path.join(
-                            output_path, amcv.convert_url_file_name(res.url))}.md",
+                        output_path = output_path,
                         data={
-                            "content": res.markdown,
+                            "content": rgd.markdown or rgd.response,
                             "source": session_id,
-                            "url": res.url,
+                            "url": rgd.url,
                         },
                     )
+
+                if process_fn:
+                    await process_fn(
+                            rgd=rgd,
+                            export_folder=output_folder,
+                            source=session_id
+                        )
 
                 results.append(rgd)
 

@@ -61,11 +61,11 @@ class ResponseGetDataCrawler(ResponseGetData):
         return cls(
             is_success=res[0].success,
             status=res[0].status_code,
-            response=res[0],
+            response=res[0].cleaned_html,
             url=res[0].url,
             html=res[0].html,
             links=res[0].links,
-            markdown=res[0].markdown,
+            markdown=res[0].markdown if hasattr(res[0], 'markdown') else None,
             raw=res,
         )
 

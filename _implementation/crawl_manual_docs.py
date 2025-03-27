@@ -1,14 +1,26 @@
 import sys
 import asyncio
-import agent_mafia.implementations.scrape_urls as scu
+from functools import partial
+import agent_mafia.utils.files as amfi
+import agent_mafia.utils.chunk_execution as amce
 import agent_mafia.routes.crawler as crawler_routes
+import agent_mafia.routes.storage as storage_routes
+from agent_mafia.implementations import scrape_urls
 
 sys.path.append(".")
 
-domain_filter = crawler_routes.DomainFilter(allowed_domains=["api.slack.com"])
+domain_filter = crawler_routes.DomainFilter(allowed_domains=["docs.slack.dev"])
+
+browser_config = crawler_routes.BrowserConfig(
+    browser_type="chromium",
+    headless=True,
+    verbose=True,
+    extra_args=["--disable-gpu", "--disable-dev-shm-usage", "--no-sandbox"],
+)
+
 
 config = crawler_routes.CrawlerRunConfig(
-    cache_mode=crawler_routes.CacheMode.ENABLED,
+    cache_mode=crawler_routes.CacheMode.BYPASS,
     deep_crawl_strategy=crawler_routes.BFSDeepCrawlStrategy(
         max_depth=1,
         filter_chain=crawler_routes.FilterChain([domain_filter]),
@@ -18,24 +30,28 @@ config = crawler_routes.CrawlerRunConfig(
     verbose=True,
 )
 
-await crawler_routes.crawl_urls(
-    starting_url="https://api.slack.com/apis",
-    session_id="slack_api_docs",
-    crawler_config=config,
-    storage_fn=partial(save_chunk_to_disk),
-    output_path="../../TEST/crawler_routes/crawl/",
-)
 
+async def main(debug_prn: bool = False):
 
-async def main():
-    # Get URLs from Pydantic AI docs
+    export_folder = "./export/slack_apis/"
+    source = "slack_api_docs"
 
-    url = "https://api.slack.com/" or input("enter url:")
-    source = "slack" or input("enter source:")
-
-    await scu.process_urls(
-        urls=[url], source=source, debug_prn=True, crawler_config=config
+    res = await crawler_routes.crawl_urls(
+        starting_url="https://docs.slack.dev/apis/",
+        crawler_config=config,
+        browser_config=browser_config,
+        session_id=source,
+        storage_fn=storage_routes.save_chunk_to_disk,
+        process_fn=partial(scrape_urls.process_rgd, source=source),
+        output_folder=export_folder,
     )
+
+    # for rgd in res:
+    #     await scrape_urls.process_rgd(
+    #         rgd=rgd, export_folder=export_folder, source=source, debug_prn=True
+    #     )
+
+    return res
 
 
 if __name__ == "__main__":
