@@ -9,14 +9,19 @@ __all__ = ['process_chunk', 'read_url', 'process_url', 'process_urls']
 import os
 from typing import List
 
-import utils
+from functools import partial
 
-from src.routes import storage as storage_routes
-from src.routes import crawler as crawler_routes
-from src.classes import Crawler_ProcessedChunk as pc
-import utils.RagError
+import agent_mafia.utils.files as amfi
+import agent_mafia.utils.convert as amcv
+import agent_mafia.utils.chunk_execution as amce
 
-# %% ../../nbs/implementations/scrape_urls.ipynb 3
+from ..routes import storage as storage_routes
+from ..routes import crawler as crawler_routes
+from ..classes import Crawler_ProcessedChunk as pc
+import agent_mafia.client.MafiaError as amme
+
+
+# %% ../../nbs/implementations/scrape_urls.ipynb 4
 async def process_chunk(
     url,
     chunk,
@@ -32,7 +37,7 @@ async def process_chunk(
         print(f"🎬 starting {url} - {chunk_number}")
 
     chunk_path = (
-        f"{export_folder}/chunks/{utils.convert_url_file_name(url)}/{chunk_number}.md"
+        f"{export_folder}/chunks/{amfi.convert_url_file_name(url)}/{chunk_number}.md"
     )
 
     chunk = pc.Crawler_ProcessedChunk.from_chunk(
@@ -71,28 +76,40 @@ async def process_chunk(
     #         )
     #     )
 
-# %% ../../nbs/implementations/scrape_urls.ipynb 4
-async def read_url(url, source, browser_config, doc_path, debug_prn: bool = False):
+# %% ../../nbs/implementations/scrape_urls.ipynb 5
+async def read_url(
+    url,
+    source,
+    browser_config: crawler_routes.BrowserConfig,
+    doc_path,
+    crawler_config: crawler_routes.CrawlerRunConfig = None,
+    debug_prn: bool = False,
+):
     if os.path.exists(doc_path):
-        content, _ = utils.read_md_from_disk(doc_path)
+        content, _ = amfi.read_md_from_disk(doc_path)
 
         if debug_prn:
             print(f"🛢️  {url} - scraping not required, file retrieved from - {doc_path}")
 
         return content
+    
+    storage_fn = partial(storage_routes.save_chunk_to_disk,
+        output_path=doc_path,
+        )
 
     res = await crawler_routes.scrape_url(
         url=url,
         session_id=source,
         browser_config=browser_config,
-        output_path=doc_path,
+        crawler_config=crawler_config,
+        storage_fn = storage_fn
     )
     if debug_prn:
         print(f"🛢️  {url} - page scraped to {doc_path}")
 
     return res.markdown
 
-# %% ../../nbs/implementations/scrape_urls.ipynb 5
+# %% ../../nbs/implementations/scrape_urls.ipynb 6
 async def process_url(
     url: str,
     source: str,
@@ -100,16 +117,17 @@ async def process_url(
     database_table_name: str,
     supabase_client=None,
     debug_prn: bool = False,
-    browser_config=None,
+    browser_config: crawler_routes.BrowserConfig = None,
+    crawler_config: crawler_routes.CrawlerRunConfig = None,
     is_replace_llm_metadata: bool = False,
     max_conccurent_requests=5,
 ):
     """process a document and store chunks in parallel"""
 
     browser_config = browser_config or crawler_routes.default_browser_config
-    supabase_client = supabase_client or storage_routes.default_supabase_client
+    supabase_client = supabase_client or storage_routes.async_supabase_client
 
-    doc_path = f"{export_folder}/{utils.convert_url_file_name(url)}.md"
+    doc_path = f"{export_folder}/{amcv.convert_url_file_name(url)}.md"
 
     ## scrape url and save results to doc_path
     try:
@@ -122,6 +140,7 @@ async def process_url(
             browser_config=browser_config,
             doc_path=doc_path,
             debug_prn=debug_prn,
+            crawler_config=crawler_config,
         )
 
     except Exception as e:
@@ -131,12 +150,12 @@ async def process_url(
     if debug_prn:
         print(f"☀️  successfully crawled: {url}")
 
-    chunks = utils.chunk_text(markdown)
+    chunks = amfi.chunk_text(markdown)
 
     if debug_prn:
         print(f"☀️  : {len(chunks)} to process {url}")
 
-    res = await utils.gather_with_concurrency(
+    res = await amce.gather_with_concurrency(
         *[
             process_chunk(
                 url=url,
@@ -159,7 +178,7 @@ async def process_url(
 
     return res
 
-# %% ../../nbs/implementations/scrape_urls.ipynb 6
+# %% ../../nbs/implementations/scrape_urls.ipynb 7
 async def process_urls(
     urls: List[str | None],
     source: str,
@@ -167,7 +186,8 @@ async def process_urls(
     database_table_name: str = "site_pages",
     max_conccurent_requests: int = 5,
     debug_prn: bool = False,
-    browser_config=None,
+    browser_config : crawler_routes.BrowserConfig =None,
+    crawler_config : crawler_routes.CrawlerRunConfig = None,
     is_replace_llm_metadata: bool = False,
 ):
     if not urls:
@@ -176,12 +196,12 @@ async def process_urls(
 
     urls_path = f"./export/urls/{source}.txt"
 
-    utils.upsert_folder(urls_path)
+    amfi.upsert_folder(urls_path)
 
     with open(urls_path, "w+", encoding="utf-8") as f:
         f.write("\n".join(urls))
 
-    res = await utils.gather_with_concurrency(
+    res = await amce.gather_with_concurrency(
         *[
             process_url(
                 url=url,
@@ -191,6 +211,7 @@ async def process_urls(
                 export_folder=export_folder,
                 database_table_name=database_table_name,
                 is_replace_llm_metadata=is_replace_llm_metadata,
+                crawler_config=crawler_config
             )
             for url in urls
         ],

@@ -4,11 +4,10 @@
 from __future__ import annotations
 from functools import partial
 
-
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, Callable, List
 from enum import Enum
 
-from pydantic_ai.agent import Agent
+from pydantic_ai.agent import Agent as PydanticAgent
 import streamlit as st
 
 from pydantic_ai.messages import (
@@ -19,7 +18,7 @@ from pydantic_ai.messages import (
 )
 
 # %% auto 0
-__all__ = ['display_message_part', 'run_agent_with_streaming', 'streamlit_ui']
+__all__ = ['display_message_part', 'streamlit_ui']
 
 # %% ../../nbs/classes/streamlit_ui.ipynb 4
 def display_system_prompt(content):
@@ -73,48 +72,10 @@ def display_message_part(part):
     )
 
 
-async def run_agent_with_streaming(agent: Agent, dependencies, user_input: str):
-    """
-    Run the agent with streaming text for the user_input prompt,
-    while maintaining the entire conversation in `st.session_state.messages`.
-    """
 
-    async with agent.run_stream(
-        user_prompt=user_input,
-        deps=dependencies,
-        message_history=st.session_state.messages[
-            :-1
-        ],  # pass entire conversation so far
-    ) as result:
-        # gather partial text to show streaming results incrementally
-
-        partial_text = ""
-
-        message_placeholder = st.empty()
-
-        # render partial_text as it arrives
-        async for chunk in result.stream_text(delta=True):
-            partial_text += chunk
-            message_placeholder.markdown(partial_text)
-
-        # add new messages excluding initial user_prompt
-        filtered_messages = [
-            msg
-            for msg in result.new_messages()
-            if not (
-                hasattr(msg, "parts")
-                and any(part.part_kind == "user-prompt" for part in msg.parts)
-            )
-        ]
-        st.session_state.messages.extend(filtered_messages)
-
-        # Add the final response to the messages
-        st.session_state.messages.append(
-            ModelResponse(parts=[TextPart(content=partial_text)])
-        )
-
-
-async def streamlit_ui(agent, dependencies, title, description, default_chat_input):
+async def streamlit_ui(agent, dependencies, title, description, 
+                       default_chat_input, run_agent_with_streaming : Callable[[PydanticAgent, dict, str] ]
+                       ):
     st.title(title)
     st.write(description)
 
