@@ -1,29 +1,29 @@
-
+import sys
 import asyncio
 import agent_mafia.implementations.scrape_urls as scu
-import sys
-
-from crawl4ai import CrawlerRunConfig, CacheMode
-from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
-from crawl4ai.deep_crawling.filters import FilterChain, DomainFilter
-from crawl4ai import CrawlerRunConfig
+import agent_mafia.routes.crawler as crawler_routes
 
 sys.path.append(".")
 
-# url_filter = URLPatternFilter(patterns=["*blog*", "*docs*"])
+domain_filter = crawler_routes.DomainFilter(allowed_domains=["api.slack.com"])
 
-domain_filter = (
-    DomainFilter(
-        allowed_domains=["api.slack.com"],
-        # blocked_domains=["old.docs.example.com"]
+config = crawler_routes.CrawlerRunConfig(
+    cache_mode=crawler_routes.CacheMode.ENABLED,
+    deep_crawl_strategy=crawler_routes.BFSDeepCrawlStrategy(
+        max_depth=1,
+        filter_chain=crawler_routes.FilterChain([domain_filter]),
+        include_external=False,
     ),
+    stream=True,
+    verbose=True,
 )
 
-config = CrawlerRunConfig(
-    cache_mode=CacheMode.BYPASS,
-    deep_crawl_strategy=BFSDeepCrawlStrategy(
-        max_depth=1, filter_chain=FilterChain([domain_filter])
-    ),
+await crawler_routes.crawl_urls(
+    starting_url="https://api.slack.com/apis",
+    session_id="slack_api_docs",
+    crawler_config=config,
+    storage_fn=partial(save_chunk_to_disk),
+    output_path="../../TEST/crawler_routes/crawl/",
 )
 
 
