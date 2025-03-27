@@ -1,14 +1,8 @@
-# Installation
+# install nbdev
 
-Run post-installation setup
-in terminal make sure to run
+pip install nbdev
+nbdev_install_quarto
 
-```terminal
-crawl4ai-setup
-```
+pip install jupyterlab-quarto
+nbdev_install_hooks
 
-Followed by Verifying your installation
-
-```terminal
-crawl4ai-doctor
-```
