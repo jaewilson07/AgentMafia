@@ -15,7 +15,7 @@ nbs/test
 _test.ipynb
 test.ipynb
 
-TEST/*.*
+TEST/
 
 *.bak
 .gitattributes
