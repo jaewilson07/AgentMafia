@@ -1,31 +1,38 @@
 import os
-import sys
 
 from typing import List
 
+from openai import AsyncOpenAI
 from pydantic_ai import RunContext
+from supabase import AsyncClient as AsyncSupabaseClient
+
 
 import agent_mafia.client.MafiaError as amme
-
 from agent_mafia.routes import openai as openai_routes
 from agent_mafia.routes import storage as storage_routes
 
 from dotenv import load_dotenv
 
+import sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-
-# Add the parent directory to sys.path
-sys.path.append(parent_dir)
-
-import utils
+sys.path.append("../")
+from utils import PydanticAIDependencies, PydanticAgent, generate_agent
 
 load_dotenv()
 
 supabase_url = os.environ["SUPABASE_URL"]
 supabase_service_key = os.environ["SUPABASE_SERVICE_KEY"]
+openai_key = os.getenv("OPENAI_API_KEY")
 
+async_openai_client = AsyncOpenAI(api_key=openai_key)
+
+async_supabase_client: AsyncSupabaseClient = AsyncSupabaseClient(
+    os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY")
+)
+
+dependencies = PydanticAIDependencies(
+    async_supabase_client=async_supabase_client, async_openai_client=async_openai_client
+)
 
 system_prompt = """
 ~~ CONTEXT: ~~
@@ -64,7 +71,7 @@ Then also always check the list of available documentation pages and retrieve th
 - When refining an existing AI agent build in a conversation, just share the code changes necessary.
 """
 
-pydantic_ai_coder: utils.PydanticAgent = utils.generate_agent(
+pydantic_ai_coder: PydanticAgent = generate_agent(
     base_url=os.getenv("BASE_URL", "https://api.openai.com/v1"),
     model_name=os.getenv("PRIMARY_MODEL", "gpt-4o-mini-2024-07-18"),
     api_key=os.environ["OPENAI_API_KEY"],
@@ -74,7 +81,7 @@ pydantic_ai_coder: utils.PydanticAgent = utils.generate_agent(
 
 @pydantic_ai_coder.tool
 async def retrieve_relevant_documentation(
-    ctx: RunContext[utils.PydanticAIDependencies], user_query: str
+    ctx: RunContext[PydanticAIDependencies], user_query: str
 ) -> str:
     """
     Retrieve relevant documentation chunks based on the query with RAG.
@@ -108,14 +115,13 @@ async def retrieve_relevant_documentation(
         return data
 
     except amme.MafiaError as e:
-        message = amme.generate_error_message(e)
-        print(message)
-        return message
+        print(e)
+        return str(e)
 
 
 @pydantic_ai_coder.tool
 async def list_documentation_pages(
-    ctx: RunContext[utils.PydanticAIDependencies],
+    ctx: RunContext[PydanticAIDependencies],
 ) -> List[str]:
     """
     Retrieve a list of all available Pydantic AI documentation pages.
@@ -126,7 +132,7 @@ async def list_documentation_pages(
 
     try:
         return await storage_routes.get_document_urls_from_supabase(
-            async_supabase_client=ctx.dependencies.async_supabase_client,
+            async_supabase_client=ctx.deps.async_supabase_client,
             source="pydantic_ai_docs",
             table_name="site_pages",
         )
@@ -138,9 +144,7 @@ async def list_documentation_pages(
 
 
 @pydantic_ai_coder.tool
-async def get_page_content(
-    ctx: RunContext[utils.PydanticAIDependencies], url: str
-) -> str:
+async def get_page_content(ctx: RunContext[PydanticAIDependencies], url: str) -> str:
     """
     Retrieve the full content of a specific documentation page by combining all its chunks.
 

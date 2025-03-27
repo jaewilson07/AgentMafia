@@ -1,0 +1,25 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import sys
+
+sys.path.append("../../")
+from ... import utils
+
+
+# Add the parent directory to sys.path
+
+base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
+api_key: str = os.getenv("LLM_API_KEY", "no-llm-api-key")
+primary_model_name = os.getenv("PRIMARY_MODEL", "gpt-40-mini")
+
+
+router_agent = utils.generate_agent(
+    model_name=primary_model_name,
+    base_url=base_url,
+    api_key=api_key,
+    system_prompt="Your job is to route the user message either to the end of the conversation or to continue coding the AI agent.",
+)

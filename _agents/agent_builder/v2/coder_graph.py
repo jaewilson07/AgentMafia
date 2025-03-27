@@ -1,13 +1,9 @@
 import os
-import sys
 
 
-from dotenv import load_dotenv
-from typing import TypedDict, Annotated, List, Any
-import asyncio
+from typing import TypedDict, Annotated, List
 
-from pydantic_ai import Agent, RunContext
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
 
 from openai import AsyncOpenAI
 from supabase import AsyncClient as AsyncSupabaseClient
@@ -15,31 +11,22 @@ from supabase import AsyncClient as AsyncSupabaseClient
 from langgraph.config import get_stream_writer
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import interrupt
+from langgraph.checkpoint.memory import MemorySaver
 
-from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import sys
+sys.path.append("../")
+from .. import utils
+
+from .agents.end_conversation_agent import end_conversation_agent
+from .agents.reasoner_agent import reasoner_agent
+from .agents.router_agent import router_agent
+from .agents.pydantic_ai_coder import pydantic_ai_coder
 
 from agent_mafia.routes import storage as storage_routes
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
-
-import utils
-
-from v1.pydantic_ai_coder import pydantic_ai_coder
-from v2.reasoner_agent import reasoner_agent
-from v2.end_conversation_agent import end_conversation_agent
-
-
-# from langgraph.checkpoint.memory import MemorySaver
-# import logfire
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-
-# Add the parent directory to sys.path
-sys.path.append(parent_dir)
-load_dotenv()
 
 
 base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
@@ -147,6 +134,25 @@ def get_next_user_message_node(state: AgentState):
     return {"latest_user_message": value}
 
 
+async def route_user_message_node(state: AgentState):
+    prompt = f"""
+    The user has sent a message: 
+    
+    {state['latest_user_message']}
+
+    If the user wants to end the conversation, respond with just the text "finish_conversation".
+    If the user wants to continue coding the AI agent, respond with just the text "coder_agent".
+    """
+
+    result = await router_agent.run(prompt)
+    next_action = result.data
+
+    if next_action == "finish_conversation":
+        return "finish_conversation"
+    
+    return "coder_agent"
+
+
 async def end_conversation_node(state: AgentState, writer, output_folder="./LOG"):
     # Get the message history into the format for Pydantic AI
     message_history = [
@@ -178,10 +184,22 @@ async def end_conversation_node(state: AgentState, writer, output_folder="./LOG"
 # Build workflow
 builder = StateGraph(AgentState)
 
+builder.add_node("define_scope_with_reasoner", define_scope_with_reasoner_node)
+builder.add_node("coder_agent", coder_agent_node)
+builder.add_node("get_next_user_message", get_next_user_message_node)
+builder.add_node("finish_conversation", end_conversation_node)
 
-async def main():
-    pass
+# Set edges
+builder.add_edge(START, "define_scope_with_reasoner")
+builder.add_edge("define_scope_with_reasoner", "coder_agent")
+builder.add_edge("coder_agent", "get_next_user_message")
+builder.add_conditional_edges(
+    "get_next_user_message",
+    route_user_message_node,
+    {"coder_agent": "coder_agent", "finish_conversation": "finish_conversation"},
+)
+builder.add_edge("finish_conversation", END)
 
+memory = MemorySaver()
 
-if __name__ == "__main__":
-    asyncio.run(main())
+agentic_flow = builder.compile(checkpointer=memory)

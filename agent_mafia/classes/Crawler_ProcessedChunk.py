@@ -15,7 +15,7 @@ import agent_mafia.routes.storage as storage_routes
 import agent_mafia.prompts.crawler as crawler_prompts
 
 import agent_mafia.client.MafiaError as amme
-import agent_mafia.utils as utils
+import agent_mafia.utils.files as amfi
 
 from typing import Union, List
 from urllib.parse import urlparse
@@ -100,7 +100,7 @@ class Crawler_ProcessedChunk:
             raise PC_PathNotExist(md_path)
 
         try:
-            chunk, frontmatter = utils.read_md_from_disk(md_path)
+            chunk, frontmatter = amfi.read_md_from_disk(md_path)
 
             res = cls(
                 url=frontmatter.get("url"),
@@ -119,6 +119,9 @@ class Crawler_ProcessedChunk:
             return False
 
     def compare_self_to_disk(self, md_path):
+        if not os.path.exists(md_path):
+            return False
+        
         try:
             md_chunk = self.from_md_file(md_path=md_path)
 
@@ -147,6 +150,8 @@ class Crawler_ProcessedChunk:
         return_raw: bool = False,
     ) -> dict:
 
+        async_client = async_client or openai_routes.default_async_openai_client
+
         if not is_replace_llm_metadata and self.title and self.summary:
             if debug_prn:
                 print(f"🛢️ {self.url} title and summary already exists")
@@ -168,14 +173,13 @@ class Crawler_ProcessedChunk:
                 model=model,
                 response_format={"type": "json_object"},
                 return_raw=return_raw,
-                debug_prn=debug_prn,
             )
 
             if return_raw:
                 return res
 
-            self.title = res.get("title")
-            self.summary = res.get("summary")
+            self.title = res.response.get("title")
+            self.summary = res.response.get("summary")
 
             return res
 
@@ -249,7 +253,8 @@ class Crawler_ProcessedChunk:
         )
 
         if output_path:
-            storage_routes.save_to_disk(output_path=output_path, **self.to_json())
+            storage_routes.save_chunk_to_disk(output_path=output_path,
+                                              data = self.to_json())
 
         return self
 
