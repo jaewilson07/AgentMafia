@@ -8,7 +8,7 @@ __all__ = ['default_browser_config', 'Crawler_Route_NotSuccess', 'scrape_url', '
 # %% ../../nbs/routes/crawler.ipynb 2
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
-
+from crawl4ai.deep_crawling.filters import FilterChain, DomainFilter
 from ..client.ResponseGetData import ResponseGetDataCrawler
 
 # %% ../../nbs/routes/crawler.ipynb 3
