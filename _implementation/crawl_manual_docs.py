@@ -1,13 +1,11 @@
 import sys
 import asyncio
 from functools import partial
-import agent_mafia.utils.files as amfi
-import agent_mafia.utils.chunk_execution as amce
+
 import agent_mafia.routes.crawler as crawler_routes
 import agent_mafia.routes.storage as storage_routes
 from agent_mafia.implementations import scrape_urls
 
-sys.path.append(".")
 
 domain_filter = crawler_routes.DomainFilter(allowed_domains=["docs.slack.dev"])
 
