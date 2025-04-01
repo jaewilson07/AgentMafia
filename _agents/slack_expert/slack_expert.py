@@ -1,19 +1,17 @@
+
 import os
 from dataclasses import dataclass
 from typing import List
 
-from supabase import Client as SupabaseClient
 from openai import AsyncClient
+from supabase import Client as SupabaseClient
+from dotenv import load_dotenv
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIModel
 
 import agent_mafia.client.MafiaError as amme
-
 from agent_mafia.routes.openai import generate_openai_embedding
-
-
-from dotenv import load_dotenv
 
 
 load_dotenv()
