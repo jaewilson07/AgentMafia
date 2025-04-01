@@ -1,16 +1,11 @@
-from dotenv import load_dotenv
-
 import os
-
 import asyncio
 
-
-from supabase import Client as SupabaseClient
+from dotenv import load_dotenv
 from openai import AsyncOpenAI
-
+from supabase import Client as SupabaseClient
 
 from agent_mafia.routes.streamlit_ui import streamlit_ui
-
 from _agents.slack_expert.slack_expert import (
     PydanticAIDependencies,
     pydantic_ai_expert as agent,
