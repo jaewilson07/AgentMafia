@@ -2,8 +2,6 @@ from dotenv import load_dotenv
 from pydantic_ai import RunContext
 
 
-import os
-
 from typing import List
 
 from openai import AsyncOpenAI
@@ -21,15 +19,23 @@ from agent_mafia.routes.pydantic import (
     PydanticAgent,
 )
 
+import os
 from dotenv import load_dotenv
 
-assert load_dotenv("./.env")
+assert load_dotenv()
 
 supabase_url = os.environ["SUPABASE_URL"]
 supabase_service_key = os.environ["SUPABASE_SERVICE_KEY"]
-openai_key = os.getenv("OPENAI_API_KEY")
 
-async_openai_client = AsyncOpenAI(api_key=openai_key)
+openai_key: str = os.environ["OPENAI_API_KEY"]
+base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
+model_name: str = os.getenv("PRIMARY_MODEL", "gpt-4o-mini-2024-07-18")
+
+async_openai_client = openai_routes.generate_openai_client(
+    api_key=openai_key,
+    base_url=base_url,
+)
+
 
 async_supabase_client: AsyncSupabaseClient = AsyncSupabaseClient(
     os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY")
@@ -78,9 +84,9 @@ Then also always check the list of available documentation pages and retrieve th
 
 
 pydantic_ai_coder: PydanticAgent = generate_pydantic_agent(
-    base_url=os.getenv("BASE_URL", "https://api.openai.com/v1"),
-    model_name=os.getenv("PRIMARY_MODEL", "gpt-4o-mini-2024-07-18"),
-    api_key=os.environ["OPENAI_API_KEY"],
+    base_url=base_url,
+    model_name=model_name,
+    api_key=openai_key,
     system_prompt=system_prompt,
 )
 
@@ -109,10 +115,11 @@ async def retrieve_relevant_documentation(
     Returns:
         A formatted string containing the top 5 most relevant documentation chunks
     """
-
     try:
-        query_embedding = await openai_routes.generate_openai_embbedding(
-            user_query, ctx.deps.async_openai_client
+        query_embedding = await openai_routes.generate_openai_embedding(
+            user_query,
+            async_client=ctx.deps.async_openai_client,
+            model="text-embedding-3-small",
         )
 
         # Query Supabase for relevant documents

@@ -1,6 +1,5 @@
 import os
 
-
 from typing import TypedDict, Annotated, List
 
 from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
@@ -13,15 +12,18 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import interrupt
 from langgraph.checkpoint.memory import MemorySaver
 
-from agent_mafia.routes.openai import generate_open_ai_client
-from agents.end_conversation_agent import end_conversation_agent
-from agents.reasoner_agent import reasoner_agent
-from agents.router_agent import router_agent
-from agent_mafia.utils.files import save_to_disk
 
 from agents.pydantic_ai_coder import pydantic_ai_coder
+from agents.reasoner_agent import reasoner_agent
+from agents.router_agent import router_agent
+from agents.end_conversation_agent import end_conversation_agent
 
+
+from agent_mafia.utils.files import save_to_disk
+
+from agent_mafia.routes.openai import generate_openai_client
 from agent_mafia.routes import storage as storage_routes
+from agent_mafia.routes.pydantic import PydanticAIDependencies
 
 from dotenv import load_dotenv
 
@@ -32,7 +34,9 @@ is_ollama = "localhost" in base_url.lower()
 api_key: str = os.getenv("LLM_API_KEY", "no-llm-api-key")
 
 
-async_openai_client: AsyncOpenAI = generate_open_ai_client(base_url, api_key)
+async_openai_client: AsyncOpenAI = generate_openai_client(
+    base_url=base_url, api_key=api_key
+)
 
 async_supabase_client = AsyncSupabaseClient(
     os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]
@@ -83,7 +87,7 @@ async def define_scope_with_reasoner_node(
     # Save the scope to a file
     scope_path = os.path.join(output_folder, "scope.md")
 
-    save_to_disk(markdown_path=scope_path, data=scope)
+    save_to_disk(output_path=scope_path, data=scope)
 
     return {"scope": scope}
 
@@ -120,7 +124,9 @@ async def coder_agent_node(state: AgentState, writer, output_folder="./LOG"):
     # print(ModelMessagesTypeAdapter.validate_json(result.new_messages_json()))
 
     coder_path = os.path.join(output_folder, "coder.md")
-    utils.save_to_markdown(markdown_path=coder_path, data=result.new_messages_json())
+    save_to_disk(
+        output_path=coder_path, is_binary=True, data=result.new_messages_json()
+    )
 
     return {"messages": [result.new_messages_json()]}
 
@@ -174,7 +180,7 @@ async def end_conversation_node(state: AgentState, writer, output_folder="./LOG"
                 writer(chunk)
 
     end_path = os.path.join(output_folder, "end.md")
-    utils.save_to_markdown(markdown_path=end_path, data=result.new_messages_json())
+    save_to_disk(output_path=end_path, is_binary=True, data=result.new_messages_json())
 
     return {"messages": [result.new_messages_json()]}
 

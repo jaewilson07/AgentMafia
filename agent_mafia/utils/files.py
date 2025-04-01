@@ -37,8 +37,12 @@ def read_md_from_disk(file_path):
     return data["body"], data["attributes"]
 
 # %% ../../nbs/utils/files.ipynb 5
-def save_to_disk(file_path: str, data, encoding="utf-8", replace_folder=False):
-    upsert_folder(file_path, replace_folder=replace_folder)
+def save_to_disk(output_path: str, data, is_binary:bool = False, encoding="utf-8", replace_folder=False):
+    upsert_folder(output_path, replace_folder=replace_folder)
 
-    with open(file_path, "w", encoding=encoding) as f:
+    if is_binary:
+        with open(output_path, "wb" ) as f:
+            f.write(data)
+    
+    with open(output_path, "w" , encoding=encoding) as f:
         f.write(data)

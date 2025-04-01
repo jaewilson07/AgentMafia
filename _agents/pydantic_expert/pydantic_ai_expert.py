@@ -10,7 +10,7 @@ from pydantic_ai.models.openai import OpenAIModel
 
 import agent_mafia.client.MafiaError as amme
 
-from agent_mafia.routes.openai import generate_openai_embbedding
+from agent_mafia.routes.openai import generate_openai_embedding
 
 
 from dotenv import load_dotenv
@@ -81,7 +81,7 @@ async def retrieve_llm(ctx: RunContext[PydanticAIDependencies], user_query: str)
     """
 
     try:
-        query_embedding = await generate_openai_embbedding(
+        query_embedding = await generate_openai_embedding(
             user_query, ctx.deps.openai_client
         )
 

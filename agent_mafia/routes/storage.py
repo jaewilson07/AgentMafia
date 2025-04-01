@@ -87,7 +87,7 @@ async def get_document_urls_from_supabase(
 
 # %% ../../nbs/routes/storage.ipynb 11
 def format_supabase_chunks(data: List[dict]) -> List[str]:
-    return [f"# {doc['title']}\n\n{doc['content']}" for doc in data]
+    return [f"# {doc['title']}\n\n{doc['content']}" for doc in data if doc]
 
 
 def format_supabase_page(data: List[dict]) -> List[str]:
@@ -126,6 +126,7 @@ async def get_document_from_supabase(
 
 
     except Exception as e:
+        print(e)
         raise amme.MafiaError("Error retrieving chunks", exception=e)
 
 # %% ../../nbs/routes/storage.ipynb 12
@@ -155,7 +156,7 @@ async def get_chunks_from_supabase(
         return format_fn(data)
 
     except Exception as e:
-        raise amme.MafiaError("Error retrieving chunks", exception=e)
+        raise amme.MafiaError("Error retrieving chunks", exception=e) from e
 
 
 # %% ../../nbs/routes/storage.ipynb 13

@@ -208,7 +208,7 @@ class Crawler_ProcessedChunk:
             return self
 
         try:
-            res = await openai_routes.generate_openai_embbedding(
+            res = await openai_routes.generate_openai_embedding(
                 text=self.content,
                 async_client=async_client,
                 model=model,

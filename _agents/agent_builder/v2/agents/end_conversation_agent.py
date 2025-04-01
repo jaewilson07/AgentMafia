@@ -1,9 +1,9 @@
-import os
 from agent_mafia.routes.pydantic import generate_pydantic_agent
+
+import os
 from dotenv import load_dotenv
 
-import sys
-
+load_dotenv()
 
 base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
 api_key: str = os.getenv("LLM_API_KEY", "no-llm-api-key")

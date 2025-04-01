@@ -25,10 +25,10 @@ class PydanticAIDependencies:
 # %% ../../nbs/routes/pydantic.ipynb 3
 def generate_pydantic_agent(
     model_name,
-    base_url,
     api_key,
     system_prompt,
     retries=0,
+    base_url = "https://api.openai.com/v1",
     provider="openai",
     debug_prn: bool = False,
 ) -> PydanticAgent:

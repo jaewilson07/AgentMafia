@@ -1,5 +1,3 @@
-from dotenv import load_dotenv
-
 from pydantic_ai.messages import (
     ModelResponse,
     TextPart,
@@ -7,19 +5,15 @@ from pydantic_ai.messages import (
 
 from pydantic_ai_coder import (
     pydantic_ai_coder,
-    PydanticAIDependencies,
-    PydanticAgent,
     dependencies,
 )
 
-from agent_mafia.classes.streamlit_ui import streamlit_ui, st
-
-
-load_dotenv()
+from agent_mafia.routes.streamlit_ui import streamlit_ui, st
 
 
 async def run_agent_with_streaming(
-    agent: PydanticAgent, user_input: str, dependencies: PydanticAIDependencies
+    user_input: str,
+    st
 ):
     """
     Run the agent with streaming text for the user_input prompt,

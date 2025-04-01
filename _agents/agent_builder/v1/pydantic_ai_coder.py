@@ -96,7 +96,7 @@ async def retrieve_relevant_documentation(
     """
 
     try:
-        query_embedding = await openai_routes.generate_openai_embbedding(
+        query_embedding = await openai_routes.generate_openai_embedding(
             user_query, ctx.deps.async_openai_client
         )
 
