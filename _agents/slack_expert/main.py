@@ -14,7 +14,8 @@ from pydantic_ai.messages import (
     TextPart,
 )
 
-from agent_mafia.routes.streamlit_ui import streamlit_ui
+from agent_mafia.routes.streamlit_ui import streamlit_ui, st
+
 from _agents.slack_expert.slack_expert import (
     PydanticAIDependencies,
     pydantic_ai_expert as agent,
