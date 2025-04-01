@@ -4,6 +4,10 @@ import asyncio
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from supabase import Client as SupabaseClient
+from pydantic_ai.messages import (
+    ModelResponse,
+    TextPart,
+)
 
 from pydantic_ai.messages import (
     ModelResponse,
