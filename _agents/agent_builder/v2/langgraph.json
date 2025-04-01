@@ -1,7 +1,9 @@
 {
-    "dependencies": ["."],
-    "graphs": {
-      "agent": "./coder_graph.py:agentic_flow"
-    },
-    "env": ".env"
-  }
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "agent": "./graph.py:agentic_flow"
+  },
+  "env": ".env"
+}

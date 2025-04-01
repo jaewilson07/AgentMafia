@@ -1,12 +1,12 @@
 import asyncio
 
+from graph import pydantic_ai_coder, dependencies
 
-from v1.streamlit_ui import (
-    pydantic_ai_coder,
+from streamlit_ui import (
     streamlit_ui,
-    dependencies,
     run_agent_with_streaming,
 )
+
 
 async def main():
     await streamlit_ui(

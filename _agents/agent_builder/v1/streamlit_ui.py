@@ -5,7 +5,7 @@ from pydantic_ai.messages import (
     TextPart,
 )
 
-from v1.pydantic_ai_coder import (
+from pydantic_ai_coder import (
     pydantic_ai_coder,
     PydanticAIDependencies,
     PydanticAgent,

@@ -1,19 +1,15 @@
 import os
+from agent_mafia.routes.pydantic import generate_pydantic_agent
 from dotenv import load_dotenv
 
 import sys
-
-sys.path.append("../../")
-import utils
-
-load_dotenv()
 
 
 base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
 api_key: str = os.getenv("LLM_API_KEY", "no-llm-api-key")
 primary_model_name = os.getenv("PRIMARY_MODEL", "gpt-40-mini")
 
-end_conversation_agent = utils.generate_agent(
+end_conversation_agent = generate_pydantic_agent(
     model_name=primary_model_name,
     base_url=base_url,
     api_key=api_key,

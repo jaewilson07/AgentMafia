@@ -13,28 +13,26 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import interrupt
 from langgraph.checkpoint.memory import MemorySaver
 
-from dotenv import load_dotenv
+from agent_mafia.routes.openai import generate_open_ai_client
+from agents.end_conversation_agent import end_conversation_agent
+from agents.reasoner_agent import reasoner_agent
+from agents.router_agent import router_agent
+from agent_mafia.utils.files import save_to_disk
 
-load_dotenv()
-
-import sys
-sys.path.append("../")
-from .. import utils
-
-from .agents.end_conversation_agent import end_conversation_agent
-from .agents.reasoner_agent import reasoner_agent
-from .agents.router_agent import router_agent
-from .agents.pydantic_ai_coder import pydantic_ai_coder
+from agents.pydantic_ai_coder import pydantic_ai_coder
 
 from agent_mafia.routes import storage as storage_routes
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 base_url: str = os.getenv("BASE_URL", "https://api.openai.com/v1")
 is_ollama = "localhost" in base_url.lower()
 api_key: str = os.getenv("LLM_API_KEY", "no-llm-api-key")
 
 
-async_openai_client: AsyncOpenAI = utils.generate_open_ai_client(base_url, api_key)
+async_openai_client: AsyncOpenAI = generate_open_ai_client(base_url, api_key)
 
 async_supabase_client = AsyncSupabaseClient(
     os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]
@@ -85,7 +83,7 @@ async def define_scope_with_reasoner_node(
     # Save the scope to a file
     scope_path = os.path.join(output_folder, "scope.md")
 
-    utils.save_to_markdown(markdown_path=scope_path, data=scope)
+    save_to_disk(markdown_path=scope_path, data=scope)
 
     return {"scope": scope}
 
@@ -93,7 +91,7 @@ async def define_scope_with_reasoner_node(
 # Coding Node with Feedback Handling
 async def coder_agent_node(state: AgentState, writer, output_folder="./LOG"):
     # Prepare dependencies
-    deps = utils.PydanticAIDependencies(
+    deps = PydanticAIDependencies(
         async_supabase_client=async_supabase_client,
         async_openai_client=async_openai_client,
         reasoner_output=state["scope"],
@@ -149,7 +147,7 @@ async def route_user_message_node(state: AgentState):
 
     if next_action == "finish_conversation":
         return "finish_conversation"
-    
+
     return "coder_agent"
 
 

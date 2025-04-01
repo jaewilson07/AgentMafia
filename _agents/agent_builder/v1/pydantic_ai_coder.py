@@ -11,14 +11,15 @@ import agent_mafia.client.MafiaError as amme
 from agent_mafia.routes import openai as openai_routes
 from agent_mafia.routes import storage as storage_routes
 
+from agent_mafia.routes.pydantic import (
+    PydanticAIDependencies,
+    generate_pydantic_agent,
+    PydanticAgent,
+)
+
 from dotenv import load_dotenv
 
-import sys
-
-sys.path.append("../")
-from utils import PydanticAIDependencies, PydanticAgent, generate_agent
-
-load_dotenv()
+assert load_dotenv("./.env")
 
 supabase_url = os.environ["SUPABASE_URL"]
 supabase_service_key = os.environ["SUPABASE_SERVICE_KEY"]
@@ -71,7 +72,7 @@ Then also always check the list of available documentation pages and retrieve th
 - When refining an existing AI agent build in a conversation, just share the code changes necessary.
 """
 
-pydantic_ai_coder: PydanticAgent = generate_agent(
+pydantic_ai_coder: PydanticAgent = generate_pydantic_agent(
     base_url=os.getenv("BASE_URL", "https://api.openai.com/v1"),
     model_name=os.getenv("PRIMARY_MODEL", "gpt-4o-mini-2024-07-18"),
     api_key=os.environ["OPENAI_API_KEY"],

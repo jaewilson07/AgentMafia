@@ -4,7 +4,7 @@ from langgraph.types import Command
 
 from agent_mafia.classes.streamlit_ui import streamlit_ui, st
 
-from .coder_graph import agentic_flow
+from graph import agentic_flow
 
 
 @st.cache_resource

@@ -1,8 +1,8 @@
 import asyncio
 
-from v2.streamlit_ui import (
-    streamlit_ui,
+from streamlit_ui import (
     pydantic_ai_coder,
+    streamlit_ui,
     dependencies,
     run_agent_with_streaming,
 )
