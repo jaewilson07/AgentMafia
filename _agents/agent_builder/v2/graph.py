@@ -124,8 +124,11 @@ async def coder_agent_node(state: AgentState, writer, output_folder="./LOG"):
     # print(ModelMessagesTypeAdapter.validate_json(result.new_messages_json()))
 
     coder_path = os.path.join(output_folder, "coder.md")
+
     save_to_disk(
-        output_path=coder_path, is_binary=True, data=result.new_messages_json()
+        output_path=coder_path,
+        is_binary=True,
+        data=result.new_messages_json()
     )
 
     return {"messages": [result.new_messages_json()]}

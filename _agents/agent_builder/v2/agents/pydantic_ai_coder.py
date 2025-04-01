@@ -52,7 +52,6 @@ You are an expert at Pydantic AI - a Python AI agent framework that you have acc
 including examples, an API reference, and other resources to help you build Pydantic AI agents.
 
 ~~ GOAL: ~~
-
 Your only job is to help the user create an AI agent with Pydantic AI.
 The user will describe the AI agent they want to build, or if they don't, guide them towards doing so.
 You will take their requirements, and then search through the Pydantic AI documentation with the tools provided
@@ -72,7 +71,6 @@ When you build an AI agent from scratch, split the agent into this files and giv
 - `requirements.txt`: Don't include any versions, just the top level package names needed for the agent.
 
 ~~ INSTRUCTIONS: ~~
-
 - Don't ask the user before taking an action, just do it. Always make sure you look at the documentation with the provided tools before writing any code.
 - When you first look at the documentation, always start with RAG.
 Then also always check the list of available documentation pages and retrieve the content of page(s) if it'll help.
@@ -193,4 +191,4 @@ async def get_page_content(ctx: RunContext[PydanticAIDependencies], url: str) ->
 
     except amme.MafiaError as e:
         print(e)
-        return e
+        return []

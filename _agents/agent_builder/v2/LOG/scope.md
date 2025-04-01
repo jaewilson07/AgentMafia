@@ -1,100 +1,118 @@
-# Scope Document for Pydantic AI Agent Specializing in Mermaid.js Diagrams
+# Scope Document for Mermaid.js Diagram AI Agent
 
-## 1. Agent Overview
+## Overview
 
-The objective of this AI agent is to assist users in generating diagrams using the Mermaid.js syntax. This agent will leverage the capabilities of Pydantic AI to interpret user prompts and convert them into valid Mermaid.js diagrams.
+This document outlines the scope for developing an AI agent that specializes in generating `mermaid.js` diagrams based on natural language descriptions of processes. The agent will utilize advanced natural language processing (NLP) techniques to convert text-based descriptions into structured `mermaid.js` syntax, enabling the visualization of complex ideas and workflows.
 
-## 2. Architecture Diagram
+## Architecture Diagram
 
 ```
-+--------------------------------------------------+
-|                    User Interface                 |
-+--------------------------------------------------+
-                        |
-                        v
-+--------------------------------------------------+
-|                Pydantic AI Agent                  |
-| +----------------------------------------------+ |
-| |     Input Parsing & Validation Module        | |
-| |              (Pydantic Models)               | |
-| +----------------------------------------------+ |
-|                        |                         |
-|                        v                         |
-| +----------------------------------------------+ |
-| |              Mermaid.js Generator            | |
-| |       (Diagram syntax and rendering)        | |
-| +----------------------------------------------+ |
-|                        |                         |
-|                        v                         |
-| +----------------------------------------------+ |
-| |        Diagram Visualization Renderer        | |
-| |        (Rendering to HTML/SVG/PNG)          | |
-| +----------------------------------------------+ |
-+--------------------------------------------------+
++----------------+       +------------------+       +---------------------+
+| User Input     | ----> | Natural Language  | ----> | Mermaid.js Syntax   |
+| (Description)  |       | Processing (NLP)  |       | Generator           |
++----------------+       +------------------+       +---------------------+
+                               | 
+                               |
+                       +-------------------+
+                       | Diagram Builder    |
+                       +-------------------+
+                               |
+                               v
+                       +-------------------+
+                       | Output Renderer    |
+                       | (e.g., HTML/CSS)   |
+                       +-------------------+
 ```
 
-## 3. Core Components
+## Core Components
 
-1. **Input Parsing & Validation Module**:
-   - Utilizes Pydantic models to parse user input and validate the data for the diagram types.
-   - Contains schemas for various Mermaid.js diagram types (e.g., flowchart, sequence diagram, Gantt chart).
+1. **User Input Interface**
+   - A component to receive user input (natural language descriptions).
+   - Can be a web form, command-line interface (CLI), or API endpoint.
 
-2. **Mermaid.js Generator**:
-   - Converts validated input data into Mermaid.js syntax.
-   - Responsible for constructing the respective Mermaid.js strings based on the input structure.
+2. **Natural Language Processing (NLP) Module**
+   - Responsible for parsing user descriptions.
+   - Utilizes libraries like SpaCy, NLTK, or transformers for intent recognition and entity extraction.
 
-3. **Diagram Visualization Renderer**:
-   - Renders the Mermaid.js syntax into visual diagrams.
-   - Integrates with web-based rendering engines for diagrams, capable of outputting to various formats (HTML, SVG, PNG).
+3. **Mermaid.js Syntax Generator**
+   - Converts parsed inputs into `mermaid.js` syntax.
+   - Implements business logic to ensure accurate representation of processes.
 
-## 4. External Dependencies
+4. **Diagram Builder**
+   - Constructs the diagram using the generated `mermaid.js` syntax.
+   - Integrates runtime libraries like Mermaid.js to render the diagram.
 
-1. **Pydantic**:
-   - Used for data validation and parsing.
+5. **Output Renderer**
+   - Formats and presents the generated diagrams back to the user.
+   - Supports various output formats, such as HTML/CSS for web embedding.
 
-2. **Mermaid.js**:
-   - The core library that generates diagrams from the syntax.
+## External Dependencies
 
-3. **Rendering Library (e.g., Mermaid Live Editor or JS-based rendering in HTML)**:
-   - To visualize crafted diagrams and export them in different formats.
+1. **Mermaid.js** 
+   - JavaScript-based library used for generating diagrams. 
+   - Requires integration for rendering and processing.
 
-4. **FastAPI or Flask**:
-   - Optional framework for creating an API around the agent for web service integration.
+2. **NLP Libraries**
+   - **SpaCy**: For sophisticated NLP tasks.
+   - **NLTK**: Basic text processing and analysis.
+   - **Transformers**: Deep learning models for enhanced intent recognition.
 
-5. **Testing Libraries (e.g., pytest)**:
-   - For unittests and integration tests.
+3. **Front-end Frameworks**
+   - **React/Vue.js/Angular**: For building user interface components.
+   - **Bootstrap/CSS**: For styling output and making it user-friendly.
 
-## 5. Testing Strategy
+4. **Backend Frameworks**
+   - **Flask/Django**: To handle requests and serve the frontend.
+   - **Node.js**: If opting for a JavaScript-based backend.
 
-1. **Unit Tests**:
-   - Validate Pydantic models to ensure that input parsing and validation work as expected.
-   - Test the Mermaid.js generator to ensure correct string output for various diagram types.
+5. **Database**
+   - For persistently storing user inputs and generated diagrams if required (e.g., MongoDB, PostgreSQL).
 
-2. **Integration Tests**:
-   - Test the flow between input, generation, and visualization components.
-   - Ensure that diagrams generated are correctly rendered in various formats.
+## Testing Strategy
 
-3. **End-to-End Tests**:
-   - Simulate user scenarios from input through to the visual output to validate the entire operation.
+1. **Unit Testing**
+   - Each core component will have dedicated unit tests to validate functionality.
+   - Test cases for input parsing, syntax generation, and rendering outputs.
 
-4. **Performance Testing**:
-   - Evaluate the rendering times and response times for generating diagrams under load.
+2. **Integration Testing**
+   - Tests will verify interaction between modules, ensuring proper flow of inputs through the system and accurate output generation.
+   - Utilize testing frameworks like Pytest (for Python) or Jest (for Node.js).
 
-5. **User Acceptance Testing (UAT)**:
-   - Involve actual users to validate that the AI agent meets their needs and gathers feedback for iterative improvements.
+3. **End-to-End Testing**
+   - Simulate real user scenarios from input to output.
+   - Employ testing frameworks like Selenium for UI interactions or Cypress for JavaScript-based testing.
 
-## 6. Relevant Documentation Pages
+4. **Performance Testing**
+   - Assess the agent's ability to handle various input lengths and complexity.
+   - Use tools like JMeter for load testing.
 
-To assist in the development of this agent, the following documentation pages will be useful:
+5. **User Acceptance Testing (UAT)**
+   - Gather feedback from real users to ensure the agent meets needs and expectations.
 
-1. [Pydantic Documentation](https://docs.pydantic.dev)
-2. [Mermaid.js Documentation](https://mermaid-js.github.io/mermaid)
-3. [FastAPI Documentation](https://fastapi.tiangolo.com/)
-4. [Flask Documentation](https://flask.palletsprojects.com/)
-5. [Python Testing Documentation](https://docs.python.org/3/library/unittest.html)
-6. [Pytest Documentation](https://docs.pytest.org/)
-7. [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live-editor/)
-8. [SVG Rendering in HTML](https://developer.mozilla.org/en-US/docs/Web/SVG)
-9. [Diagram Visualisation Techniques](https://observablehq.com/@mbostock/diagram-visualization)
+## Relevant Documentation Pages
 
-This scope document provides a clear blueprint for the development and implementation of the Pydantic AI agent aimed at creating Mermaid.js diagrams, following standard practices for software architecture, testing, and dependency management.
+1. **Mermaid.js Documentation**
+   - [Mermaid.js Official Documentation](https://mermaid-js.github.io/mermaid)
+   - [Basic Syntax Overview](https://mermaid-js.github.io/mermaid/#/syntax)
+
+2. **NLP Libraries Documentation**
+   - [SpaCy Documentation](https://spacy.io/usage)
+   - [NLTK Book](http://www.nltk.org/book/)
+   - [Transformers Documentation](https://huggingface.co/docs/transformers/index)
+
+3. **Frontend Framework Documentation**
+   - [React Documentation](https://reactjs.org/docs/getting-started.html)
+   - [Vue.js Documentation](https://vuejs.org/v2/guide/)
+   - [Angular Documentation](https://angular.io/docs)
+
+4. **Backend Framework Documentation**
+   - [Flask Documentation](https://flask.palletsprojects.com/en/2.1.x/)
+   - [Django Documentation](https://docs.djangoproject.com/en/stable/)
+   - [Node.js Documentation](https://nodejs.org/en/docs/)
+
+5. **Testing Framework Documentation**
+   - [Pytest Documentation](https://docs.pytest.org/en/stable/)
+   - [Jest Documentation](https://jestjs.io/docs/getting-started)
+   - [Selenium Documentation](https://www.selenium.dev/documentation/en/)
+
+This scope document aims to serve as a comprehensive guide for developing an AI agent specializing in generating `mermaid.js` diagrams from process descriptions. Further iterations and improvements will be finalized based on ongoing user feedback and testing outcomes.
